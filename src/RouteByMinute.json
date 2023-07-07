@@ -1,0 +1,29 @@
+{
+  "locations": [
+    {
+      "latitude": 12.983693457,
+      "longitude": 77.603524403,
+      "soc": 98
+    },
+    {
+      "latitude": 12.9838864,
+      "longitude": 77.603584,
+      "soc": 95
+    },
+    {
+      "latitude": 12.9839917,
+      "longitude": 77.6035495,
+      "soc": 89
+    },
+    {
+      "latitude": 12.9840407,
+      "longitude": 77.6035461,
+      "soc": 85
+    },
+    {
+      "latitude": 12.98408315,
+      "longitude": 77.603414135,
+      "soc": 80
+    }
+  ]
+}
