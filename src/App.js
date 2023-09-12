@@ -1,10 +1,11 @@
 import React from 'react';
 import Map from './Map';
+import NewMap from './NewMap';
 
 function App() {
   return (
     <div className="App">
-      <Map />
+      <NewMap />
     </div>
   );
 }

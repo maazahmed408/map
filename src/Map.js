@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import pin from './pin.jpg';
+import pin from './car.png';
 
 const customIcon = L.icon({
   iconUrl: pin,
@@ -12,74 +12,93 @@ const customIcon = L.icon({
 });
 
 const Map = () => {
-  const [coordinates, setCoordinates] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [vehicles, setVehicles] = useState([]);
   const [isAnimating, setIsAnimating] = useState(false);
-  const markerRef = useRef(null);
+  const markersRef = useRef([]);
+  const animationFrameIdsRef = useRef([]);
 
   useEffect(() => {
-    fetch('http://localhost:8001/locations')
+    fetch('http://localhost:8002/vehicles')
       .then((response) => response.json())
       .then((data) => {
-        setCoordinates(data);
-        setCurrentIndex(0);
+        setVehicles(data);
       })
       .catch((error) => {
-        console.log('Error fetching coordinates:', error);
+        console.log('Error fetching vehicles:', error);
       });
   }, []);
 
-  useEffect(() => {
-    if (markerRef.current && coordinates.length > 0) {
-      const popupContent = L.popup().setContent(`<strong>SoC: ${coordinates[currentIndex].soc}%</strong>`);
+  const startAnimation = () => {
+    setIsAnimating(true);
+    animateMarkers();
+  };
 
-      markerRef.current.bindPopup(popupContent, {
-        closeButton: false,
-        offset: L.point(0, -32), // Adjust the offset as needed to position the popup correctly
-      }).openPopup();
-    }
-  }, [coordinates, currentIndex]);
-
-  useEffect(() => {
-    let animationFrameId;
-
-    const animateMarker = (timestamp) => {
-      const currentCoordinate = coordinates[currentIndex];
-      const nextIndex = (currentIndex + 1) % coordinates.length;
-      const nextCoordinate = coordinates[nextIndex];
-
-      const progress = (timestamp - startTime) / duration;
-      const interpolatedLatLng = interpolateLatLng(
-        L.latLng(currentCoordinate.latitude, currentCoordinate.longitude),
-        L.latLng(nextCoordinate.latitude, nextCoordinate.longitude),
-        progress
-      );
-      markerRef.current.setLatLng(interpolatedLatLng);
-
-      if (progress < 1) {
-        animationFrameId = requestAnimationFrame(animateMarker);
-      } else {
-        setCurrentIndex(nextIndex);
-        startAnimation();
+  const stopAnimation = () => {
+    setIsAnimating(false);
+    cancelAnimationFrameRequests();
+    markersRef.current.forEach((marker, index) => {
+      const { locations } = vehicles[index];
+      const lastCoordinate = locations[locations.length - 1];
+      if (marker) {
+        marker.setLatLng([lastCoordinate.latitude, lastCoordinate.longitude]);
       }
-    };
+    });
+  };
 
-    const startAnimation = () => {
-      startTime = performance.now();
-      animationFrameId = requestAnimationFrame(animateMarker);
-    };
+  const animateMarkers = () => {
+    cancelAnimationFrameRequests();
 
-    let startTime;
-    const duration = 2000;
+    vehicles.forEach((vehicle, index) => {
+      const { locations } = vehicle;
+      const numCoordinates = locations.length;
+      const marker = markersRef.current[index];
 
-    if (isAnimating) {
-      startAnimation();
-    }
+      if (numCoordinates > 1 && marker) {
+        let currentIndex = 0;
+        let startTime = performance.now();
+        const duration = 4000;
 
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [coordinates, currentIndex, isAnimating]);
+        const animateMarker = (timestamp) => {
+          const elapsedTime = timestamp - startTime;
+          let progress = elapsedTime / duration;
+        
+          if (progress >= 1) {
+            currentIndex = (currentIndex + 1) % numCoordinates;
+            startTime = timestamp;
+            progress = 0;
+          }
+        
+          const currentIndexFloor = Math.floor(currentIndex);
+          const nextIndex = (currentIndexFloor + 1) % numCoordinates;
+          const remainder = currentIndex - currentIndexFloor;
+        
+          const currentCoordinate = locations[currentIndexFloor];
+          const nextCoordinate = locations[nextIndex];
+        
+          const interpolatedLatLng = interpolateLatLng(
+            L.latLng(currentCoordinate.latitude, currentCoordinate.longitude),
+            L.latLng(nextCoordinate.latitude, nextCoordinate.longitude),
+            progress
+          );
+        
+          marker.setLatLng(interpolatedLatLng);
+        
+          const popupContent = document.createElement('div');
+          popupContent.textContent = currentCoordinate.soc;
+        
+          marker.getPopup().setContent(popupContent);
+        
+          animationFrameIdsRef.current[index] = requestAnimationFrame(animateMarker);
+        };
+        animationFrameIdsRef.current[index] = requestAnimationFrame(animateMarker);
+      }
+    });
+  };
+
+  const cancelAnimationFrameRequests = () => {
+    animationFrameIdsRef.current.forEach((id) => cancelAnimationFrame(id));
+    animationFrameIdsRef.current = [];
+  };
 
   const interpolateLatLng = (start, end, progress) => {
     const lat = start.lat + (end.lat - start.lat) * progress;
@@ -87,36 +106,73 @@ const Map = () => {
     return L.latLng(lat, lng);
   };
 
-  const toggleAnimation = () => {
-    setIsAnimating((prevIsAnimating) => !prevIsAnimating);
-  };
-
-  const routeCoordinates = coordinates.map(({ latitude, longitude }) => [latitude, longitude]);
-
-  const mapInfo = `Total Locations: ${coordinates.length}`;
-
   return (
     <div>
       <MapContainer center={[12.983693457, 77.603524403]} zoom={13} style={{ height: '1000px', width: '100%' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="Map data © OpenStreetMap contributors" />
-        {coordinates.length > 0 && (
-          <>
+        {vehicles.map((vehicle, index) => {
+          const { locations } = vehicle;
+          const routeCoordinates = locations.map(({ latitude, longitude }) => [latitude, longitude]);
+
+          const startMarker = locations.length > 0 ? (
             <Marker
-              position={L.latLng(coordinates[0].latitude, coordinates[0].longitude)}
+              position={[locations[0].latitude, locations[0].longitude]}
               icon={customIcon}
-            />
+              ref={(ref) => (markersRef.current[index] = ref)}
+            >
+              <Popup>{locations[0].soc}</Popup>
+            </Marker>
+          ) : null;
+
+          const endMarker = locations.length > 0 ? (
             <Marker
-              position={L.latLng(coordinates[coordinates.length - 1].latitude, coordinates[coordinates.length - 1].longitude)}
+              position={[
+                locations[locations.length - 1].latitude,
+                locations[locations.length - 1].longitude,
+              ]}
               icon={customIcon}
-            />
-            <Polyline positions={routeCoordinates} color="blue" />
+              ref={(ref) => (markersRef.current[index] = ref)}
+            >
+              <Popup>{locations[locations.length - 1].soc}</Popup>
+            </Marker>
+          ) : null;
+
+          let currentIndexFloor = 0;
+          if (isAnimating && markersRef.current[index]) {
+            currentIndexFloor = Math.floor(markersRef.current[index].options.zIndexOffset);
+          }
+
+          const movingMarker = locations.length > 0 && locations.length > 1 ? (
             <Marker
-              position={L.latLng(coordinates[currentIndex].latitude, coordinates[currentIndex].longitude)}
+              position={[
+                locations[currentIndexFloor].latitude,
+                locations[currentIndexFloor].longitude,
+              ]}
               icon={customIcon}
-              ref={markerRef}
-            />
-          </>
-        )}
+              ref={(ref) => (markersRef.current[index] = ref)}
+              eventHandlers={{
+                mouseover: () => {
+                  markersRef.current[index]?.openPopup();
+                },
+                mouseout: () => {
+                  markersRef.current[index]?.closePopup();
+                },
+              }}
+            >
+              <Popup>{locations[currentIndexFloor].soc}</Popup>
+            </Marker>
+          ) : null;
+          
+
+          return (
+            <React.Fragment key={index}>
+              {startMarker}
+              {endMarker}
+              <Polyline positions={routeCoordinates} color="blue" />
+              {movingMarker}
+            </React.Fragment>
+          );
+        })}
       </MapContainer>
       <div style={{ position: 'absolute', top: '10px', right: '10px', backgroundColor: 'white', padding: '10px', borderRadius: '4px', zIndex: '1000', border: '1px solid black' }}>
         <p style={{ fontSize: '18px', fontWeight: 'bold' }}>Route Distance: 30km</p>
@@ -124,28 +180,47 @@ const Map = () => {
         <p style={{ fontSize: '18px', fontWeight: 'bold' }}>End Location:</p>
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
-        <button
-          style={{
-            padding: '8px 16px',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            backgroundColor: '#f44336',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-          className={`animation-button ${isAnimating ? 'pause' : 'start'}`}
-          onClick={toggleAnimation}
-        >
-          {isAnimating ? 'Pause' : 'Start'}
-        </button>
+        {!isAnimating && (
+          <button
+            style={{
+              padding: '8px 16px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              backgroundColor: '#f44336',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+            onClick={startAnimation}
+          >
+            Start
+          </button>
+        )}
+        {isAnimating && (
+          <button
+            style={{
+              padding: '8px 16px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              backgroundColor: '#f44336',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+            onClick={stopAnimation}
+          >
+            Stop
+          </button>
+        )}
       </div>
     </div>
   );
 };
 
 export default Map;
+
 
 
 

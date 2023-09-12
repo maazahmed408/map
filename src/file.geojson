@@ -1,0 +1,229 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.603524403, 12.983693457]
+      },
+      "properties": {
+        "vehicle_id": 1,
+        "soc": 98
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.603584, 12.9838864]
+      },
+      "properties": {
+        "vehicle_id": 1,
+        "soc": 95
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.6035495, 12.9839917]
+      },
+      "properties": {
+        "vehicle_id": 1,
+        "soc": 89
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.6035461, 12.9840407]
+      },
+      "properties": {
+        "vehicle_id": 1,
+        "soc": 85
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.603414135, 12.98408315]
+      },
+      "properties": {
+        "vehicle_id": 1,
+        "soc": 80
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.6017477, 12.98423]
+      },
+      "properties": {
+        "vehicle_id": 1,
+        "soc": 75
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.6017533, 12.9844862]
+      },
+      "properties": {
+        "vehicle_id": 1,
+        "soc": 72
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.6017484, 12.984615]
+      },
+      "properties": {
+        "vehicle_id": 1,
+        "soc": 68
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.6017352, 12.9846393]
+      },
+      "properties": {
+        "vehicle_id": 1,
+        "soc": 68
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.6017153, 12.9846605]
+      },
+      "properties": {
+        "vehicle_id": 1,
+        "soc": 68
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.6015172, 12.9846678]
+      },
+      "properties": {
+        "vehicle_id": 2,
+        "soc": 75
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.5998763, 12.984652]
+      },
+      "properties": {
+        "vehicle_id": 2,
+        "soc": 75
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.599695, 12.9843776]
+      },
+      "properties": {
+        "vehicle_id": 2,
+        "soc": 75
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.599002121, 12.9843451]
+      },
+      "properties": {
+        "vehicle_id": 2,
+        "soc": 75
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.598694203, 12.984220654]
+      },
+      "properties": {
+        "vehicle_id": 2,
+        "soc": 75
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.5978276, 12.98416535]
+      },
+      "properties": {
+        "vehicle_id": 2,
+        "soc": 75
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.597585913, 12.9840097]
+      },
+      "properties": {
+        "vehicle_id": 2,
+        "soc": 75
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.5974602, 12.984152778]
+      },
+      "properties": {
+        "vehicle_id": 2,
+        "soc": 75
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.5971728, 12.9842272]
+      },
+      "properties": {
+        "vehicle_id": 2,
+        "soc": 75
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.5971704, 12.9843652]
+      },
+      "properties": {
+        "vehicle_id": 2,
+        "soc": 75
+      }
+    }
+  ]
+}
+
+
+
+  
